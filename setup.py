@@ -12,7 +12,6 @@ setup(
         "sqlalchemy",
         "uvicorn",
         "python-decouple"
-        "strawberry-graphQL"
         # Agrega otras dependencias necesarias
     ],
     entry_points={

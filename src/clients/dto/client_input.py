@@ -1,11 +1,8 @@
-import strawberry
+from pydantic import BaseModel
 
-from src.client.types.creditEnums import CreditRiskProfileEnum
+from src.clients.types.creditEnums import CreditRiskProfileEnum
 
-
-@strawberry.type
-class ClientDto:
-    id: int
+class ClientInput(BaseModel):
     firstName: str
     lastName: str
     email: str
