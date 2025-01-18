@@ -10,12 +10,13 @@ class ClientRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def createClient(self, client: ClientInput):
-        clientData = ClientEntity(**client.dict())
+    def createClient(self, client: ClientInput, auth0Id: str) -> ClientDto:
+        clientData = ClientEntity(**client.dict(exclude={"password"}))
+        clientData.auth0Id = auth0Id
         self.db.add(clientData)
         self.db.commit()
         self.db.refresh(clientData)
-        return clientData
+        return ClientDto.from_entity(clientData)
 
     def findAll(self) -> List[ClientDto]:
         clients = self.db.query(ClientEntity).all()
