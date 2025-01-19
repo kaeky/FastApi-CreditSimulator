@@ -21,3 +21,7 @@ class ClientRepository:
     def findAll(self) -> List[ClientDto]:
         clients = self.db.query(ClientEntity).all()
         return [ClientDto.from_entity(client) for client in clients]
+
+    def getByAuth0Id(self, auth0Id: str) -> ClientDto:
+        client = self.db.query(ClientEntity).filter(ClientEntity.auth0Id == auth0Id).first()
+        return ClientDto.from_entity(client) if client else None

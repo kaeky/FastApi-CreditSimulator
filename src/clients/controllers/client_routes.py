@@ -5,6 +5,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from src.auth.middlewares.current_user_decorator import currentUser
+from src.auth.middlewares.jwt_strategy import JWTStrategy
 from src.clients.dto.client_dto import ClientDto
 from src.clients.dto.client_input import ClientInput
 from src.clients.services.client_service import ClientService
@@ -23,16 +24,19 @@ class ClientRoutes:
         self._registerRoutes()
 
     def _registerRoutes(self):
-        self.router.get("/", response_model=List[ClientDto])(self.getClients)
+        self.router.get("/", response_model=List[ClientDto], dependencies=[Depends(currentUser)])(self.getClients)
         self.router.post("/", response_model=ClientDto)(self.createClient)
-        self.router.get("/profile", response_model=ClientDto, dependencies=[Depends(currentUser)])(self.getClient)
+        self.router.get("/profile", response_model=ClientDto)(self.getClient)
 
     def getClients(self, db: Session = Depends(getDb)) -> List[ClientDto]:
-        clientService = ClientService(db)
-        return clientService.getClients()
+        try:
+            clientService = ClientService(db, auth0Lib)
+            return clientService.getClients()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error inesperado: {e}")
 
-    def getClient(self, db: Session = Depends(getDb)):
-        clientService = ClientService(db)
+    def getClient(self, db: Session = Depends(getDb)) -> ClientDto:
+        clientService = ClientService(db, auth0Lib)
         return clientService.getClients()
 
     def createClient(self, client: ClientInput, db: Session = Depends(getDb)) -> ClientDto:

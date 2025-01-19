@@ -21,3 +21,6 @@ class ClientService:
         idAuht0 = result["identities"][0]["user_id"]
         return self.clientRepository.createClient(client, idAuht0)
 
+    def getByAuth0Id(self, db: Session, auth0Id: str) -> ClientDto:
+        self.clientRepository = ClientRepository(db)
+        return self.clientRepository.getByAuth0Id(auth0Id)
