@@ -26,7 +26,8 @@ class ClientRoutes:
     def _registerRoutes(self):
         self.router.get("/", response_model=List[ClientDto], dependencies=[Depends(currentUser)])(self.getClients)
         self.router.post("/", response_model=ClientDto)(self.createClient)
-        self.router.get("/profile", response_model=ClientDto)(self.getClient)
+        self.router.get("/profile", response_model=ClientDto, dependencies=[Depends(currentUser)])(self.getClient)
+        self.router.patch("/", response_model=ClientDto, dependencies=[Depends(currentUser)])(self.updateClient)
 
     def getClients(self, db: Session = Depends(getDb)) -> List[ClientDto]:
         try:
@@ -35,14 +36,23 @@ class ClientRoutes:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inesperado: {e}")
 
-    def getClient(self, db: Session = Depends(getDb)) -> ClientDto:
-        clientService = ClientService(db, auth0Lib)
-        return clientService.getClients()
+    def getClient(self, currentUser: ClientDto = Depends(currentUser)) -> ClientDto:
+        try:
+            return currentUser
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error inesperado: {e}")
 
     def createClient(self, client: ClientInput, db: Session = Depends(getDb)) -> ClientDto:
         try:
             clientService = ClientService(db, auth0Lib)
             return clientService.createClient(client)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error inesperado: {e}")
+
+    def updateClient(self, clientInput: ClientInput, db: Session = Depends(getDb), currentUser: ClientDto = Depends(currentUser)) -> ClientDto:
+        try:
+            clientService = ClientService(db, auth0Lib)
+            return clientService.updateClient(clientInput, currentUser)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error inesperado: {e}")
 

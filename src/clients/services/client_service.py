@@ -17,10 +17,15 @@ class ClientService:
         return self.clientRepository.findAll()
 
     def createClient(self, client: ClientInput) -> ClientDto:
-        result = self.clientAuth0Service.createUser(client)
-        idAuht0 = result["identities"][0]["user_id"]
+        user = self.clientAuth0Service.createUser(client)
+        idAuht0 = user["identities"][0]["user_id"]
         return self.clientRepository.createClient(client, idAuht0)
 
     def getByAuth0Id(self, db: Session, auth0Id: str) -> ClientDto:
         self.clientRepository = ClientRepository(db)
         return self.clientRepository.getByAuth0Id(auth0Id)
+
+    def updateClient(self, clientInput: ClientInput, client: ClientDto) -> ClientDto:
+        updateAuth0 = self.clientAuth0Service.updateClient(clientInput, client)
+        idAuht0 = updateAuth0["identities"][0]["user_id"]
+        return self.clientRepository.updateClient(clientInput, client, idAuht0)

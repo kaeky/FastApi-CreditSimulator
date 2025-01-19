@@ -25,3 +25,13 @@ class ClientRepository:
     def getByAuth0Id(self, auth0Id: str) -> ClientDto:
         client = self.db.query(ClientEntity).filter(ClientEntity.auth0Id == auth0Id).first()
         return ClientDto.from_entity(client) if client else None
+
+    def updateClient(self, clientInput: ClientInput, client: ClientDto, auth0Id: str) -> ClientDto:
+        clientData = self.db.query(ClientEntity).filter(ClientEntity.id == client.id).first()
+        clientInputDict = clientInput.dict(exclude={"password"})
+        clientInputDict['auth0Id'] = auth0Id
+        for key, value in clientInputDict.items():
+            setattr(clientData, key, value)
+        self.db.commit()
+        self.db.refresh(clientData)
+        return ClientDto.from_entity(clientData)

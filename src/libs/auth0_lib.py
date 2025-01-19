@@ -1,5 +1,8 @@
 import requests
 from cachetools import TTLCache
+
+from src.clients.dto.client_dto import ClientDto
+from src.clients.dto.client_input import ClientInput
 from src.config.auth0 import auth0Config
 
 class Auth0Lib:
@@ -75,20 +78,20 @@ class Auth0Lib:
             "Authorization": f"Bearer {access_token}",
         })
 
-    def updateUser(self, client, update_user_dto):
+    def updateUser(self, clientInput: ClientInput, client: ClientDto):
         access_token = self._getApiToken()
         if not access_token:
             return None
 
         form = {
-            "email": update_user_dto['email'],
-            "given_name": update_user_dto['firstName'],
-            "family_name": update_user_dto['lastName'],
-            "name": f"{update_user_dto['firstName']} {update_user_dto['lastName']}",
+            "email": clientInput.email,
+            "given_name": clientInput.firstName,
+            "family_name": clientInput.lastName or " ",
+            "name": f"{clientInput.firstName} {clientInput.lastName}",
             "connection": "Username-Password-Authentication",
         }
 
-        return self._request("PATCH", f"/api/v2/users/auth0|{client['auth0Id']}", data=form, headers={
+        return self._request("PATCH", f"/api/v2/users/auth0|{client.auth0Id}", data=form, headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {access_token}",
         })
