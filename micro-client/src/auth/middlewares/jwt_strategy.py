@@ -60,6 +60,6 @@ class JWTStrategy(BaseHTTPMiddleware):
         except UnauthorizedException as exc:
             return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
         except Exception as exc:
-            return JSONResponse(status_code=500, content={"detail": "Unexpected server error"})
+            return JSONResponse(status_code=500, content={"detail": "Error de servidor inesperado"})
         response = await call_next(request)
         return response
